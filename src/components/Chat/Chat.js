@@ -69,7 +69,9 @@ function Chat() {
             disabled={!channelName}
             onChange={(e) => setInput(e.target.value)}
             placeholder={
-              channelName ? `Message #${channelName}` : "Message disabled"
+              channelName
+                ? `Message #${channelName}`
+                : "Select a hyperchat to send a message"
             }
           />
           <button

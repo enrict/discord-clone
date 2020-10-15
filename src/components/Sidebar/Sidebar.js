@@ -48,7 +48,7 @@ function Sidebar() {
         <div className="sidebar__channelsHeader">
           <div className="sidebar__header">
             <ExpandMoreIcon />
-            <h4>Hyper Chats</h4>
+            <h4>Your Hyperchats</h4>
           </div>
 
           <AddIcon className="sidebar__addChannel" onClick={handleAddChannel} />

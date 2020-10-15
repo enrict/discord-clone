@@ -15,7 +15,7 @@ function ChatHeader({ channelName }) {
       <div className="chatHeader__left">
         <h3>
           <span className="chatHeader__hash">#</span>
-          {channelName}
+          {channelName ? `${channelName}` : "No hyperchat selected :("}
         </h3>
       </div>
       <div className="chatHeader__right">
