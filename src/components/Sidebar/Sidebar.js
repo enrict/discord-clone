@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./Sidebar.css";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import AddIcon from "@material-ui/icons/Add";
@@ -8,8 +8,35 @@ import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
 import CallIcon from "@material-ui/icons/Call";
 import { Avatar } from "@material-ui/core";
 import { Headset, Mic, Settings } from "@material-ui/icons";
+import { selectUser } from "../../features/userSlice";
+import { useSelector } from "react-redux";
+import db, { auth } from "../../firebase";
 
 function Sidebar() {
+  const user = useSelector(selectUser);
+  const [channels, setChannels] = useState([]);
+
+  const handleAddChannel = () => {
+    const channelName = prompt("Create new HyperChatroom");
+
+    if (channelName) {
+      db.collection("channels").add({
+        channelName: channelName,
+      });
+    }
+  };
+
+  useEffect(() => {
+    db.collection("channels").onSnapshot((snapshot) =>
+      setChannels(
+        snapshot.docs.map((doc) => ({
+          id: doc.id,
+          channel: doc.data(),
+        }))
+      )
+    );
+  }, []);
+
   return (
     <div className="sidebar">
       <div className="sidebar__top">
@@ -24,12 +51,16 @@ function Sidebar() {
             <h4>Hyper Chats</h4>
           </div>
 
-          <AddIcon className="sidebar__addChannel" />
+          <AddIcon className="sidebar__addChannel" onClick={handleAddChannel} />
         </div>
         <div className="sidebar__channelsList">
-          <SidebarChannel />
-          <SidebarChannel />
-          <SidebarChannel />
+          {channels.map(({ id, channel }) => (
+            <SidebarChannel
+              key={id}
+              id={id}
+              channelName={channel.channelName}
+            />
+          ))}
         </div>
       </div>
 
@@ -50,9 +81,9 @@ function Sidebar() {
       </div>
 
       <div className="sidebar__profile">
-        <Avatar src="https://media-exp1.licdn.com/dms/image/C4D03AQH5KYC-DrkM-A/profile-displayphoto-shrink_100_100/0?e=1608163200&v=beta&t=KCGt9TLB6aooTB45m8Vn83uLauC8JJVBt4PVUph4NAg" />
+        <Avatar onClick={() => auth.signOut()} src={user.photoURL} />
         <div className="sidebar__profileInfo">
-          <h3>r2x</h3>
+          <h3>{user.displayName}</h3>
           <p>In Lobby [2/4] - Fortnite</p>
         </div>
 

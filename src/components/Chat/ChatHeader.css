@@ -30,7 +30,7 @@
   cursor: pointer;
 }
 .chatHeader__right > .MuiSvgIcon-root:hover {
-  color: red;
+  color: whitesmoke;
 }
 
 .chatHeader__search {

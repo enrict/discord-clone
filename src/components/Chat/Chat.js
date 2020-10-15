@@ -4,26 +4,73 @@ import {
   EmojiEmotions,
   Gif,
 } from "@material-ui/icons";
-import React from "react";
+import React, { useState } from "react";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { selectChannelID, selectChannelName } from "../../features/appSlice";
+import { selectUser } from "../../features/userSlice";
+import db from "../../firebase";
 import "./Chat.css";
 import ChatHeader from "./ChatHeader";
 import Message from "./Message";
+import firebase from "../../../node_modules/firebase";
 
 function Chat() {
+  const user = useSelector(selectUser);
+  const channelID = useSelector(selectChannelID);
+  const channelName = useSelector(selectChannelName);
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    if (channelID) {
+      db.collection("channels")
+        .doc(channelID)
+        .collection("messages")
+        .orderBy("timestamp", "desc")
+        .onSnapshot((snapshot) =>
+          setMessages(snapshot.docs.map((doc) => doc.data))
+        );
+    }
+  }, []);
+
+  const sendMessages = (e) => {
+    e.preventDefault();
+    db.collection("channels").doc(channelID).collection("messages").add({
+      timestamp: new Date.now(),
+      message: input,
+      user: user,
+    });
+  };
+
   return (
     <div className="chat">
-      <ChatHeader />
+      <ChatHeader channelName={channelName} />
 
       <div className="chat__messages">
-        <Message />
+        {messages.map((msg) => (
+          <Message />
+        ))}
       </div>
 
       <div className="chat__input">
         <AddCircle fontSize="large" />
 
         <form>
-          <input placeholder={`Message #TESTCHAT`} />
-          <button type="submit" className="chat__inputButton">
+          <input
+            value={input}
+            disabled={!channelName}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={
+              channelName ? `Message #${channelName}` : "Message disabled"
+            }
+          />
+          <button
+            type="submit"
+            className="chat__inputButton"
+            disabled={!channelName}
+            onClick={sendMessages}
+          >
             Send Chat
           </button>
         </form>
