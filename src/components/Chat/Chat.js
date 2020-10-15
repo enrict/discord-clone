@@ -29,27 +29,34 @@ function Chat() {
         .collection("messages")
         .orderBy("timestamp", "desc")
         .onSnapshot((snapshot) =>
-          setMessages(snapshot.docs.map((doc) => doc.data))
+          setMessages(snapshot.docs.map((doc) => doc.data()))
         );
     }
-  }, []);
+  }, [channelID]);
 
   const sendMessages = (e) => {
     e.preventDefault();
     db.collection("channels").doc(channelID).collection("messages").add({
-      timestamp: new Date.now(),
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       message: input,
       user: user,
     });
+    setInput("");
   };
+
+  console.log(messages);
 
   return (
     <div className="chat">
       <ChatHeader channelName={channelName} />
 
       <div className="chat__messages">
-        {messages.map((msg) => (
-          <Message />
+        {messages.map((message) => (
+          <Message
+            timestamp={message.timestamp}
+            message={message.message}
+            user={message.user}
+          />
         ))}
       </div>
 
